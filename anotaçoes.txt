@@ -1,0 +1,88 @@
+-------------------------------------- Criação da aplicação web (curso API) ------------------------------------------
+> Usaremos o comando  -- 
+$ mkdir node-str <-- o comando ao lado usaremos para criar uma pasta para o projeto (onde tem node-str é node de exemplo, caso queira uma pasta com nome diferente use a criatividade (de preferencia do app ou website que esteja criando)).
+
+> Para inicar qualquer aplicação do node usamos o comando -- 
+$ npm init (caso não queira responder perguntas do node como sera sua aplicação use "-y" depois de init para ele criar um package.json com as informações padrões).
+
+> Para poder criar uma aplicação precisará instalar 3 pacotes e usando o comando --
+$ npm http express debug --save (Havera alteração no arquivo package.json) node_modules ficara no git ignore
+
+> Para poder fazer importação de modolus precisa definir algumas variaveis(ou constante tanto faz), e depois usar o 
+require(), após isso coloque entre parenteses aspas (pode ser simples('') ou duplas("")) e o nome do pacote no qual eu desejo importa para a minha aplicação web. Caso o que eu esteja importando não esteja na pasta node_modules devo colocar entre parenteses ./ para ele entender que a importação não sera feita pela pasta. 
+
+>Para criar a aplicação defino outra variavel e então chamo o express nela, mais uma vez defino variavel e dessa vez setarei a porta dela(No curso usaremos a 3000 pois é uma rede local, mas não intressante fixar a porta na qual o servidor da aplicação web estara).
+
+> Com a variavel app estanciada irei criar o servidor, para isso defina variavel nomeia e use o http.createServer e depois dentro do http no pareneteses chame a variavel app que ja foi setada antes, depois defina um arquivo(variavel) para rota, dada a url o usuario conseguira chegar ate a nossa aplicação
+
+>Após o servidor e a url serem criadas pode configurar a rota defina uma variavel para atribuir a variavel de rota a essa variavel e use o metodo .get('/', ()), dentro dos parenteses defino a url que começara com aspas e barra, abrir outro parenteses e colocar parametro ja nomeado de req,res e next, após os parametros serem definidos chame o parametro res como um arrow function: res.status(200).send({title: "Node Store API", version: "0.0.1" }); (Status code so um pocou mais para frente.) Depois que definimos o que o site vai mostrar utilizar app.use('/', route).
+
+> Agora so fazer o servidor ficar "ouvindo" a porta setada: server.listen(port);
+
+>Na função a seguir iremos normalizar a porta e para ver se tem alguma porta desponivel, se tiver ele ira aplicar o valor da porta na aplicação web: 
+
+function normalizePort(val) { <-- essa function recebe um parametro que é o valor (val)
+
+    const port = parseInt(val, 10); <-- eu tento converter esse valor para um numero inteiro
+
+    if(isNaN(port)) {
+        return val;   <-- Se esse valor não der um numero ele me retornara o 10
+    }
+
+    if (port >= 0) {
+        return port; <-- Caso dê ele retornara a porta
+    }
+
+    return false; <-- se caso nenhuma das anteriores funcionar ele me retornara false
+}
+
+>Após va na variavel port que você criou e edite-a para a seguinte script: normalizePort(process.env.PORT || '3000');
+
+>A função a seguir é para tratativa de erros
+
+function onError(error) { <-- dentro do parenteses é o parametro que pega o erro do servidor 
+    if(error.syscall !== 'listen') {
+        throw error;
+    }
+
+    const bind = typeof port === 'string' ?
+    'Pipe ' + port :
+    'Port ' + port;
+    
+    switch (error.code) {
+        case 'EACCES' : <-- Quando o erro ofr pego ele ira ver se não é um erro de permissão
+console.error(bind + ' requieres eleveted privileges'); <-- caso seja de permissão ele irar printar esse erro na tela
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+
+>Agora irei utilizar o debug, que cê ja tinha estanciado ele anteriormente e fiz o seguinte escript:
+function onListening() {
+    const addr = server.address();
+    const bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+}
+
+>Obs: Aula 7 do curso de api é apenas separando o servido dos demais arquivos(Caso cê queira veja a aula denovo, mas tente ser o maximo organizado desde o começo. PRESTE BEM ATENÇÂO!). Aula 8 é setando o npm start para que ele inicio a api sem precisar escrever muito (para setar o inicio da api é so ir em package.json e procurar pelo nome start após isso veja em qual pasta esta localizado o servidor e edite o start começando com node caso não estaja na mesma pasta use o ./ para que ele saia da pasta e você possa estar colocando a pasta na qual ele esta sendo iniciada no meu caso seria  node ./bin/server.js apos isso ser feito so usar o comando npm start)
+
+> Agora usaremos o nodemon para você que fez o curso de javaScript ele é como se fosse um live server, sempre ele eu mexer em algo no script ele resetara a aplicação e irar mostrar as atualizações que fiz apos salvar as pastas modificadas. Ao instalar o nodemon utilizamos o npm install nodemon --save-dev o -dev é para indicar que so sera usado enquanto a aplicação estiver em desenvolvimento.
+
+>Agora nos vamos criar novos metodos alem do get, agora sera adicionado os metos create, ready e delete. A varios outros como petch entre outros mas os mais utilizados são os quantro metodos citados acima. No qual o get é para obter as informações, o post para enviar as informações e put para atualizar/ adicionar uma informação nova e o delete como o proprio nome ja diz ele deleta alguma informação que talvez não seja, mais util naquele momento. Pode fazer duas rotas para duas operações diferentes. É recomendado que se utilize as mesmas rotas para opereções CRUD para que não fique confuso para quem esta escrevendo o codigo mas tambem para quem possa vir a ler. 
+
+>Na entrada de parametros nos temos o request, response e o next. Então temos a requisição (toda vez que você digita um endereço ou uma url voce faz uma request para um servidor e após esse request ser processado ele gera uma resposta no caso nosso response). No put ele fara uma atualização de um determinado produto
+
+>Se mantermos as rotas do produto tudo em um mesmo arquivo acabara se tornando muito confuso na hora da leitura caso haja alterações no futuro, para deixar mais organizado vamos criar um arquivo dentro de outra pasta para controlar esses produtos, após criar esse arquivo e colocar o nome de controller (pois ele irar controlar os produtos), iremos apenas copiar o que estava dentro do metodo das 3 rotas e passar para dentro do controller. (O que esta dentro do controller é apenas um exemplo pode haver mais linhas codigo depende da api que voce esteja criando ).
+
+> SALT_KEY = 19984dcaea13176bbb694f62ba6b5b35
+
+
+>Diferença de banco relacional(SQL) para não relacional (NO SQL)
